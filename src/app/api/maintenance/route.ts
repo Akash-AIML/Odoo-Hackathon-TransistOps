@@ -1,8 +1,9 @@
 // src/app/api/maintenance/route.ts - Maintenance Management API
 
 import { type NextRequest, NextResponse } from 'next/server';
-import { withAuth } from '@/middleware/rbac';
+import { type AuthenticatedContext, withAuth } from '@/middleware/rbac';
 import { prisma } from '@/utils/db';
+import { auditLog } from '@/utils/audit';
 
 // 1. GET /api/maintenance - List logs with pagination
 export const GET = withAuth(
@@ -48,13 +49,13 @@ export const GET = withAuth(
 
 // 2. POST /api/maintenance - Create new log (Fleet Manager or Maintenance Technician)
 export const POST = withAuth(
-    async (req: NextRequest) => {
+    async (req: NextRequest, { user }: AuthenticatedContext) => {
         try {
-            const { vehicleId, serviceType, cost, date, status } = await req.json();
+            const { vehicleId, serviceType, priority, mechanic, cost, date, status, notes } = await req.json();
 
             if (!vehicleId || !serviceType || !cost || !date || !status) {
                 return NextResponse.json(
-                    { error: 'All fields (vehicleId, serviceType, cost, date, status) are required.' },
+                    { error: 'Required fields: vehicleId, serviceType, cost, date, status.' },
                     { status: 400 },
                 );
             }
@@ -64,20 +65,38 @@ export const POST = withAuth(
                 return NextResponse.json({ error: 'Vehicle profile not found.' }, { status: 404 });
             }
 
+            if (vehicle.status === 'Retired') {
+                return NextResponse.json(
+                    { error: 'Retired vehicles cannot be scheduled for maintenance.' },
+                    { status: 400 },
+                );
+            }
+
             // Save log
             const log = await prisma.maintenanceLog.create({
                 data: {
                     vehicleId,
                     serviceType,
+                    priority: priority || 'Normal',
+                    mechanic: mechanic || '',
                     cost: Number(cost),
                     date: new Date(date),
                     status,
+                    notes: notes || '',
                     odometer: vehicle.odometer,
                 },
             });
 
+            await auditLog({
+                userId: user.id,
+                action: 'CREATE',
+                entity: 'MaintenanceLog',
+                entityId: log.id,
+                newValue: log,
+            });
+
             // Trigger vehicle status cascade
-            if (status === 'In Shop') {
+            if (status === 'In Shop' || status === 'In Progress') {
                 await prisma.vehicle.update({
                     where: { id: vehicleId },
                     data: { status: 'In Shop' },

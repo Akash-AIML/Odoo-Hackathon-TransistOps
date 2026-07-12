@@ -52,7 +52,23 @@ export const GET = withAuth(
             // Today's trips count
             const startOfToday = new Date();
             startOfToday.setHours(0, 0, 0, 0);
-            const todayTrips = trips.filter((t) => new Date(t.createdAt) >= startOfToday).length;
+            const todayTripsList = trips.filter((t) => new Date(t.createdAt) >= startOfToday);
+            const todayTrips = todayTripsList.length;
+
+            const activeTrips = trips.filter((t) => t.status === 'Dispatched').length;
+            const pendingTrips = trips.filter((t) => t.status === 'Draft' || t.status === 'Ready').length;
+
+            const todayFuelLogs = await prisma.fuelLog.findMany({
+                where: { date: { gte: startOfToday } },
+            });
+            const todayFuelCost = todayFuelLogs.reduce((sum, f) => sum + f.cost, 0);
+
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const monthlyTransactions = await prisma.transaction.findMany({
+                where: { type: 'OUTFLOW', date: { gte: thirtyDaysAgo } },
+            });
+            const monthlyOperationalCost = monthlyTransactions.reduce((sum, t) => sum + t.amount, 0);
 
             // Vehicle status counts
             const statusCounts = {
@@ -82,6 +98,10 @@ export const GET = withAuth(
                     driversAvailable,
                     maintenanceAlerts,
                     todayTrips,
+                    activeTrips,
+                    pendingTrips,
+                    todayFuelCost,
+                    monthlyOperationalCost,
                 },
                 statusCounts,
                 alerts: notifications,

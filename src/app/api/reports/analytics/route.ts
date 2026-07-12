@@ -81,6 +81,14 @@ export const GET = withAuth(
                     ? Number((activeEffs.reduce((sum, val) => sum + val, 0) / activeEffs.length).toFixed(2))
                     : 0;
 
+            // 3. Top Lists
+            const topVehicles = [...vehicleReports]
+                .sort((a, b) => b.financials.revenue - a.financials.revenue)
+                .slice(0, 5);
+
+            const mostExpensiveVehicle = [...vehicleReports]
+                .sort((a, b) => b.financials.totalExpenses - a.financials.totalExpenses)[0];
+
             return NextResponse.json({
                 fleetMetrics: {
                     fleetUtilization,
@@ -89,6 +97,8 @@ export const GET = withAuth(
                     netProfitability: totalRevenue - totalOperationalCost,
                     avgFuelEfficiency,
                 },
+                topVehicles,
+                mostExpensiveVehicle,
                 vehicleReports,
             });
         } catch (error: unknown) {

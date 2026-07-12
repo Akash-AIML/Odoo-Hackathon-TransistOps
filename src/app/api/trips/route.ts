@@ -3,6 +3,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { type AuthenticatedContext, withAuth } from '@/middleware/rbac';
 import { prisma } from '@/utils/db';
+import { auditLog } from '@/utils/audit';
 
 // 1. GET /api/trips - List trips with pagination (Filtered for Driver role)
 export const GET = withAuth(
@@ -55,11 +56,11 @@ export const GET = withAuth(
     ['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst', 'Driver'],
 );
 
-// 2. POST /api/trips - Create/Dispatch a Trip (Dispatcher only)
+// 2. POST /api/trips - Create/Dispatch a Trip (Dispatcher, Fleet Manager)
 export const POST = withAuth(
-    async (req: NextRequest) => {
+    async (req: NextRequest, { user }: AuthenticatedContext) => {
         try {
-            const { id, source, destination, cargoWeight, distance, vehicleId, driverId, status, revenue } =
+            const { id, source, destination, cargoWeight, distance, estimatedFuel, vehicleId, driverId, status, revenue } =
                 await req.json();
 
             if (!source || !destination || !cargoWeight || !distance) {
@@ -81,44 +82,55 @@ export const POST = withAuth(
             const driver = driverId ? await prisma.driver.findUnique({ where: { id: driverId } }) : null;
 
             // Dispatch compliance rules
-            if (status === 'Dispatched') {
-                if (!vehicle)
+            if (status === 'Dispatched' || status === 'Ready') {
+                if (status === 'Dispatched' && !vehicle)
                     return NextResponse.json(
                         { error: 'A vehicle assignment is required for dispatched trips.' },
                         { status: 400 },
                     );
-                if (!driver)
+                if (status === 'Dispatched' && !driver)
                     return NextResponse.json(
                         { error: 'A driver assignment is required for dispatched trips.' },
                         { status: 400 },
                     );
 
                 // Compliance Checks
-                if (vehicle.status !== 'Available') {
-                    return NextResponse.json(
-                        { error: `Vehicle ${vehicle.name} is currently ${vehicle.status} and cannot be dispatched.` },
-                        { status: 400 },
-                    );
+                if (vehicle) {
+                    if (vehicle.status === 'Retired') {
+                        return NextResponse.json(
+                            { error: `Vehicle ${vehicle.name} is retired and cannot be dispatched.` },
+                            { status: 400 },
+                        );
+                    }
+                    if (status === 'Dispatched' && vehicle.status !== 'Available') {
+                        return NextResponse.json(
+                            { error: `Vehicle ${vehicle.name} is currently ${vehicle.status} and cannot be dispatched.` },
+                            { status: 400 },
+                        );
+                    }
+                    if (Number(cargoWeight) > vehicle.capacity) {
+                        return NextResponse.json(
+                            {
+                                error: `Dispatch Blocked: Cargo weight (${cargoWeight} kg) exceeds vehicle load capacity (${vehicle.capacity} kg).`,
+                            },
+                            { status: 400 },
+                        );
+                    }
                 }
-                if (driver.status !== 'Available') {
-                    return NextResponse.json(
-                        { error: `Driver ${driver.name} is currently ${driver.status} and cannot be assigned.` },
-                        { status: 400 },
-                    );
-                }
-                if (new Date(driver.expiryDate) < new Date()) {
-                    return NextResponse.json(
-                        { error: 'Dispatch Blocked: Driver license has expired.' },
-                        { status: 400 },
-                    );
-                }
-                if (Number(cargoWeight) > vehicle.capacity) {
-                    return NextResponse.json(
-                        {
-                            error: `Dispatch Blocked: Cargo weight (${cargoWeight} kg) exceeds vehicle load capacity (${vehicle.capacity} kg).`,
-                        },
-                        { status: 400 },
-                    );
+
+                if (driver) {
+                    if (status === 'Dispatched' && driver.status !== 'Available') {
+                        return NextResponse.json(
+                            { error: `Driver ${driver.name} is currently ${driver.status} and cannot be assigned.` },
+                            { status: 400 },
+                        );
+                    }
+                    if (new Date(driver.expiryDate) < new Date()) {
+                        return NextResponse.json(
+                            { error: 'Dispatch Blocked: Driver license has expired.' },
+                            { status: 400 },
+                        );
+                    }
                 }
             }
 
@@ -130,12 +142,21 @@ export const POST = withAuth(
                     destination,
                     cargoWeight: Number(cargoWeight),
                     distance: Number(distance),
+                    estimatedFuel: Number(estimatedFuel || 0),
                     status: status || 'Draft',
                     revenue: Number(revenue || 0),
                     vehicleId: vehicleId || null,
                     driverId: driverId || null,
                     eta: status === 'Dispatched' ? 'Calculating...' : status === 'Draft' ? 'Awaiting vehicle' : '--',
                 },
+            });
+
+            await auditLog({
+                userId: user.id,
+                action: status === 'Dispatched' ? 'DISPATCH' : 'CREATE',
+                entity: 'Trip',
+                entityId: newTrip.id,
+                newValue: newTrip,
             });
 
             // Trigger cascade changes
@@ -164,5 +185,5 @@ export const POST = withAuth(
             return NextResponse.json({ error: (error as Error).message || 'Internal Server Error' }, { status: 500 });
         }
     },
-    ['Dispatcher'],
+    ['Dispatcher', 'Fleet Manager'],
 );

@@ -1,8 +1,9 @@
 // src/app/api/expenses/route.ts - Expense Tracking API
 
 import { type NextRequest, NextResponse } from 'next/server';
-import { withAuth } from '@/middleware/rbac';
+import { type AuthenticatedContext, withAuth } from '@/middleware/rbac';
 import { prisma } from '@/utils/db';
+import { auditLog } from '@/utils/audit';
 
 // 1. GET /api/expenses - List expenses with pagination
 export const GET = withAuth(
@@ -45,13 +46,13 @@ export const GET = withAuth(
 
 // 2. POST /api/expenses - Create new expense (Financial Analyst only)
 export const POST = withAuth(
-    async (req: NextRequest) => {
+    async (req: NextRequest, { user }: AuthenticatedContext) => {
         try {
-            const { tripId, vehicleId, toll, other, date } = await req.json();
+            const { tripId, vehicleId, category, amount, description, toll, other, date } = await req.json();
 
-            if (!vehicleId || toll === undefined || other === undefined) {
+            if (!vehicleId) {
                 return NextResponse.json(
-                    { error: 'Vehicle assignment and toll/other expense cost numbers are required.' },
+                    { error: 'Vehicle assignment is required.' },
                     { status: 400 },
                 );
             }
@@ -74,36 +75,33 @@ export const POST = withAuth(
                 data: {
                     tripId: tripId || null,
                     vehicleId,
-                    toll: Number(toll),
-                    other: Number(other),
+                    category: category || 'Other',
+                    amount: Number(amount || toll || other || 0),
+                    description: description || '',
+                    toll: Number(toll || 0),
+                    other: Number(other || 0),
                     date: expenseDate,
                 },
             });
 
-            // 3. Register outflow transactions in financial ledger
-            if (Number(toll) > 0) {
-                await prisma.transaction.create({
-                    data: {
-                        type: 'OUTFLOW',
-                        category: 'Toll',
-                        amount: Number(toll),
-                        referenceId: expense.id,
-                        date: expenseDate,
-                    },
-                });
-            }
+            await auditLog({
+                userId: user.id,
+                action: 'CREATE',
+                entity: 'Expense',
+                entityId: expense.id,
+                newValue: expense,
+            });
 
-            if (Number(other) > 0) {
-                await prisma.transaction.create({
-                    data: {
-                        type: 'OUTFLOW',
-                        category: 'Other Expense',
-                        amount: Number(other),
-                        referenceId: expense.id,
-                        date: expenseDate,
-                    },
-                });
-            }
+            // 3. Register outflow transactions in financial ledger
+            await prisma.transaction.create({
+                data: {
+                    type: 'OUTFLOW',
+                    category: category || 'Other Expense',
+                    amount: expense.amount,
+                    referenceId: expense.id,
+                    date: expenseDate,
+                },
+            });
 
             return NextResponse.json(expense, { status: 201 });
         } catch (error: unknown) {

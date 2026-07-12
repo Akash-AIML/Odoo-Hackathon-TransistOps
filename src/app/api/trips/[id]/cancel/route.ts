@@ -3,6 +3,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { type AuthenticatedContext, withAuth } from '@/middleware/rbac';
 import { prisma } from '@/utils/db';
+import { auditLog } from '@/utils/audit';
 
 export const POST = withAuth(
     async (_req: NextRequest, { params }: AuthenticatedContext) => {
@@ -15,9 +16,18 @@ export const POST = withAuth(
             }
 
             // Cancel trip
-            await prisma.trip.update({
+            const updatedTrip = await prisma.trip.update({
                 where: { id },
                 data: { status: 'Cancelled', eta: '--' },
+            });
+
+            await auditLog({
+                userId: user.id,
+                action: 'CANCEL',
+                entity: 'Trip',
+                entityId: id,
+                oldValue: { status: trip.status },
+                newValue: { status: 'Cancelled' },
             });
 
             // Restore vehicle status
@@ -50,5 +60,5 @@ export const POST = withAuth(
             return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
         }
     },
-    ['Dispatcher'],
+    ['Dispatcher', 'Fleet Manager'],
 );

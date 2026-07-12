@@ -3,6 +3,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { type AuthenticatedContext, withAuth } from '@/middleware/rbac';
 import { prisma } from '@/utils/db';
+import { auditLog } from '@/utils/audit';
 
 export const POST = withAuth(
     async (req: NextRequest, { params, user }: AuthenticatedContext) => {
@@ -98,9 +99,18 @@ export const POST = withAuth(
             }
 
             // 3. Update Trip status
-            await prisma.trip.update({
+            const updatedTrip = await prisma.trip.update({
                 where: { id },
                 data: { status: 'Completed', eta: '--' },
+            });
+
+            await auditLog({
+                userId: user.id,
+                action: 'COMPLETE',
+                entity: 'Trip',
+                entityId: id,
+                oldValue: { status: trip.status },
+                newValue: { status: 'Completed' },
             });
 
             // 4. Update Vehicle state: odometer and status

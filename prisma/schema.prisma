@@ -11,97 +11,113 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
+  id           String     @id @default(uuid())
+  email        String     @unique
   name         String
   passwordHash String
-  role         String   // Admin, Fleet Manager, Dispatcher, Safety Officer, Financial Analyst, Maintenance Technician, Driver
-  driverId     String?  @unique
-  driver       Driver?  @relation(fields: [driverId], references: [id], onDelete: SetNull)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  role         String     // Admin, Fleet Manager, Dispatcher, Safety Officer, Financial Analyst, Maintenance Technician, Driver
+  driverId     String?    @unique
+  driver       Driver?    @relation(fields: [driverId], references: [id], onDelete: SetNull)
+  auditLogs    AuditLog[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
 
 model Vehicle {
-  id              String           @id @default(uuid())
-  regNo           String           @unique
-  name            String
-  type            String           // Van, Truck, Mini
-  capacity        Int              // Max Cargo capacity (kg)
-  odometer        Int              // Current odometer reading (km)
-  cost            Int              // Acquisition Cost ($)
-  status          String           // Available, On Trip, In Shop, Retired
-  health          Int              @default(100) // Health Score (0-100)
-  nextServiceOdo  Int              @default(5000) // Next required service odometer (km)
-  fuelEfficiency  Float            @default(12.0) // Expected/Baseline fuel efficiency (km/L)
-  totalTrips      Int              @default(0)
-  documents       String           // JSON string representing document validation (Insurance, RC, Fitness, etc.)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  trips           Trip[]
-  maintenanceLogs MaintenanceLog[]
-  fuelLogs        FuelLog[]
-  expenses        Expense[]
+  id                 String           @id @default(uuid())
+  regNo              String           @unique
+  name               String
+  type               String           // Van, Truck, Mini, Bus, Pickup
+  capacity           Int              // Max Cargo capacity (kg)
+  odometer           Int              // Current odometer reading (km)
+  cost               Int              // Acquisition Cost (in currency units)
+  status             String           // Available, On Trip, In Shop, Retired
+  health             Int              @default(100) // Health Score (0-100)
+  nextServiceOdo     Int              @default(5000) // Next required service odometer (km)
+  fuelEfficiency     Float            @default(12.0) // Expected/Baseline fuel efficiency (km/L)
+  totalTrips         Int              @default(0)
+  region             String           @default("Central") // Depot region
+  insuranceExpiry    DateTime?        // Insurance certificate expiry date
+  pollutionExpiry    DateTime?        // Pollution certificate expiry date
+  documents          String           // JSON string representing document validation (Insurance, RC, Fitness, etc.)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  trips              Trip[]
+  maintenanceLogs    MaintenanceLog[]
+  fuelLogs           FuelLog[]
+  expenses           Expense[]
 }
 
 model Driver {
-  id            String   @id @default(uuid())
-  name          String   @unique
-  licenseNo     String   @unique
-  category      String   // LMV, HGV, MCWG
-  expiryDate    DateTime
-  contact       String
-  safetyScore   Int      @default(100) // 0-100 score
-  status        String   // Available, On Trip, Off Duty, Suspended
-  totalDistance Float    @default(0.0) // total km driven
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  trips         Trip[]
-  user          User?
+  id               String   @id @default(uuid())
+  name             String   @unique
+  licenseNo        String   @unique
+  category         String   // LMV, HGV, MCWG
+  expiryDate       DateTime
+  contact          String
+  emergencyContact String   @default("") // Emergency contact number (encrypted)
+  experience       Int      @default(0)  // Years of driving experience
+  safetyScore      Int      @default(100) // 0-100 score
+  status           String   // Available, On Trip, Off Duty, Suspended
+  totalDistance    Float    @default(0.0) // total km driven
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  trips            Trip[]
+  user             User?
 }
 
 model Trip {
-  id           String    @id // Explicitly set e.g., TR-001
-  source       String
-  destination  String
-  cargoWeight  Int       // in kg
-  distance     Float     // in km
-  status       String    // Draft, Ready, Dispatched, Completed, Cancelled
-  revenue      Int       @default(0) // Revenue in lowest currency unit (cents/paise)
-  eta          String    @default("--")
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  vehicleId    String?
-  vehicle      Vehicle?  @relation(fields: [vehicleId], references: [id])
-  driverId     String?
-  driver       Driver?   @relation(fields: [driverId], references: [id])
-  expenses     Expense[]
+  id            String    @id // Explicitly set e.g., TR-001
+  source        String
+  destination   String
+  cargoWeight   Int       // in kg
+  distance      Float     // in km
+  estimatedFuel Float     @default(0) // estimated fuel consumption in liters
+  status        String    // Draft, Ready, Dispatched, Completed, Archived, Cancelled
+  revenue       Int       @default(0) // Revenue in lowest currency unit (cents/paise)
+  eta           String    @default("--")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  vehicleId     String?
+  vehicle       Vehicle?  @relation(fields: [vehicleId], references: [id])
+  driverId      String?
+  driver        Driver?   @relation(fields: [driverId], references: [id])
+  expenses      Expense[]
+  fuelLogs      FuelLog[]
 }
 
 model MaintenanceLog {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   vehicleId   String
-  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  serviceType String   // Oil, Brake, Tyres, Engine
+  vehicle     Vehicle   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  serviceType String    // Oil, Brake, Tyres, Engine, Electrical, Body, Other
+  priority    String    @default("Normal") // Low, Normal, High, Critical
+  mechanic    String    @default("") // Assigned mechanic name
   cost        Int
-  date        DateTime
-  status      String   // Completed, In Shop, Scheduled, Upcoming
-  odometer    Int      // Odometer reading when service logged
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  date        DateTime  // Start date
+  endDate     DateTime? // End date (set when closed)
+  status      String    // Open, In Progress, Completed, Closed
+  odometer    Int       // Odometer reading when service logged
+  notes       String    @default("") // Optional notes
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model FuelLog {
-  id         String   @id @default(uuid())
-  vehicleId  String
-  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  date       DateTime
-  liters     Float
-  cost       Int
-  odometer   Int
-  isAnomaly  Boolean  @default(false) // Triggered if efficiency drops > 18%
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id           String   @id @default(uuid())
+  vehicleId    String
+  vehicle      Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  tripId       String?
+  trip         Trip?    @relation(fields: [tripId], references: [id], onDelete: SetNull)
+  date         DateTime
+  liters       Float
+  pricePerLiter Float   @default(0) // Price per liter
+  cost         Int      // Total cost
+  odometer     Int
+  fuelStation  String   @default("") // Name/location of fuel station
+  isAnomaly    Boolean  @default(false) // Triggered if efficiency drops > 18%
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Expense {
@@ -110,8 +126,11 @@ model Expense {
   trip       Trip?    @relation(fields: [tripId], references: [id], onDelete: SetNull)
   vehicleId  String
   vehicle    Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  category   String   @default("Other") // Maintenance, Toll, Parking, Insurance, Permit, Repairs, Other
   toll       Int      @default(0)
   other      Int      @default(0)
+  amount     Int      @default(0) // Primary amount for categorized expenses
+  description String  @default("") // Optional description
   date       DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -144,4 +163,17 @@ model Transaction {
   date        DateTime
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// Audit trail for all write operations
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String   // CREATE, UPDATE, DELETE, DISPATCH, COMPLETE, CANCEL, CLOSE
+  entity    String   // Vehicle, Driver, Trip, MaintenanceLog, etc.
+  entityId  String   // ID of the affected record
+  oldValue  String?  // JSON string of previous state
+  newValue  String?  // JSON string of new state
+  createdAt DateTime @default(now())
 }

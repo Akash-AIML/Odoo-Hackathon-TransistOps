@@ -17,6 +17,7 @@ async function main() {
     console.log('Starting seed operations...');
 
     // Clear existing data in reverse dependency order
+    await prisma.auditLog.deleteMany();
     await prisma.transaction.deleteMany();
     await prisma.notification.deleteMany();
     await prisma.expense.deleteMany();
@@ -48,6 +49,8 @@ async function main() {
             category: 'LMV',
             expiryDate: getRelativeDate(1), // Expires tomorrow
             contact: '9876599100',
+            emergencyContact: '9876500001',
+            experience: 8,
             safetyScore: 96,
             status: 'Available',
             totalDistance: 19800
@@ -58,6 +61,8 @@ async function main() {
             category: 'LMV',
             expiryDate: getRelativeDate(-100), // Already expired
             contact: '9822088331',
+            emergencyContact: '9822000002',
+            experience: 5,
             safetyScore: 89,
             status: 'Suspended',
             totalDistance: 14200
@@ -68,6 +73,8 @@ async function main() {
             category: 'LMV',
             expiryDate: getRelativeDate(450),
             contact: '9980177221',
+            emergencyContact: '9980100003',
+            experience: 12,
             safetyScore: 99,
             status: 'On Trip',
             totalDistance: 25400
@@ -78,6 +85,8 @@ async function main() {
             category: 'HGV',
             expiryDate: getRelativeDate(200),
             contact: '9741044220',
+            emergencyContact: '9741000004',
+            experience: 15,
             safetyScore: 88,
             status: 'Off Duty',
             totalDistance: 31000
@@ -89,7 +98,8 @@ async function main() {
         const encryptedDriver = {
             ...d,
             licenseNo: encrypt(d.licenseNo),
-            contact: encrypt(d.contact)
+            contact: encrypt(d.contact),
+            emergencyContact: d.emergencyContact ? encrypt(d.emergencyContact) : ''
         };
         const dRec = await prisma.driver.create({ data: encryptedDriver });
         seededDrivers[dRec.name] = dRec.id;
@@ -105,12 +115,12 @@ async function main() {
         { email: 'finance@transitops.in', name: 'Alex Patel', role: 'Financial Analyst', passwordHash },
         { email: 'admin@transitops.in', name: 'John Admin', role: 'Admin', passwordHash },
         { email: 'tech@transitops.in', name: 'Dave Tech', role: 'Maintenance Technician', passwordHash },
-        { 
-            email: 'driver_alex@transitops.in', 
-            name: 'Alex Driver', 
-            role: 'Driver', 
+        {
+            email: 'driver_alex@transitops.in',
+            name: 'Alex Driver',
+            role: 'Driver',
             passwordHash,
-            driverId: seededDrivers['Alex'] 
+            driverId: seededDrivers['Alex']
         }
     ];
 
@@ -139,6 +149,9 @@ async function main() {
             nextServiceOdo: 75000,
             fuelEfficiency: 12.0,
             totalTrips: 45,
+            region: 'North',
+            insuranceExpiry: getRelativeDate(365),
+            pollutionExpiry: getRelativeDate(180),
             documents: docStatus
         },
         {
@@ -153,6 +166,9 @@ async function main() {
             nextServiceOdo: 195000,
             fuelEfficiency: 8.0,
             totalTrips: 148,
+            region: 'South',
+            insuranceExpiry: getRelativeDate(200),
+            pollutionExpiry: getRelativeDate(90),
             documents: docStatus
         },
         {
@@ -167,6 +183,9 @@ async function main() {
             nextServiceOdo: 68000,
             fuelEfficiency: 14.5,
             totalTrips: 82,
+            region: 'Central',
+            insuranceExpiry: getRelativeDate(300),
+            pollutionExpiry: getRelativeDate(120),
             documents: docStatus
         },
         {
@@ -181,6 +200,9 @@ async function main() {
             nextServiceOdo: 245000,
             fuelEfficiency: 11.5,
             totalTrips: 201,
+            region: 'East',
+            insuranceExpiry: getRelativeDate(-30),
+            pollutionExpiry: getRelativeDate(-60),
             documents: docStatus
         },
         {
@@ -195,6 +217,9 @@ async function main() {
             nextServiceOdo: 105000,
             fuelEfficiency: 9.0,
             totalTrips: 112,
+            region: 'West',
+            insuranceExpiry: getRelativeDate(150),
+            pollutionExpiry: getRelativeDate(60),
             documents: docStatus
         }
     ];
@@ -214,6 +239,7 @@ async function main() {
             destination: 'Ahmedabad Hub',
             cargoWeight: 450,
             distance: 35,
+            estimatedFuel: 3.0,
             status: 'Dispatched',
             revenue: 2500,
             eta: '45 min',
@@ -226,6 +252,7 @@ async function main() {
             destination: 'Baroda Hub',
             cargoWeight: 4200,
             distance: 110,
+            estimatedFuel: 13.75,
             status: 'Completed',
             revenue: 12000,
             eta: '--',
@@ -238,6 +265,7 @@ async function main() {
             destination: 'Surat Depot',
             cargoWeight: 900,
             distance: 260,
+            estimatedFuel: 17.9,
             status: 'Dispatched',
             revenue: 18000,
             eta: '3h 10m',
@@ -250,6 +278,7 @@ async function main() {
             destination: 'Sanand Warehouse',
             cargoWeight: 3500,
             distance: 45,
+            estimatedFuel: 5.6,
             status: 'Draft',
             revenue: 5000,
             eta: 'Awaiting driver',
@@ -257,11 +286,23 @@ async function main() {
             driverId: seededDrivers['Suresh']
         },
         {
+            id: 'TR-005',
+            source: 'Kalol Depot',
+            destination: 'Gandhinagar Hub',
+            cargoWeight: 800,
+            distance: 25,
+            estimatedFuel: 2.1,
+            status: 'Ready',
+            revenue: 3000,
+            eta: 'Awaiting dispatch'
+        },
+        {
             id: 'TR-006',
             source: 'Mehsana',
             destination: 'Kalol Depot',
             cargoWeight: 100,
             distance: 15,
+            estimatedFuel: 1.0,
             status: 'Cancelled',
             revenue: 0,
             eta: 'Vehicle sent to shop'
@@ -290,41 +331,64 @@ async function main() {
         {
             vehicleId: seededVehicles['GJ01AW5121'],
             serviceType: 'Oil',
+            priority: 'Normal',
+            mechanic: 'Ram Kumar',
             cost: 2500,
             date: getRelativeDate(-11),
-            status: 'In Shop',
-            odometer: 73900
+            status: 'In Progress',
+            odometer: 73900,
+            notes: 'Full oil change and filter replacement'
         },
         {
             vehicleId: seededVehicles['GJ01BA9981'],
             serviceType: 'Engine',
+            priority: 'High',
+            mechanic: 'Vijay Singh',
             cost: 18000,
             date: getRelativeDate(-27),
-            status: 'Completed',
-            odometer: 191800
+            endDate: getRelativeDate(-20),
+            status: 'Closed',
+            odometer: 191800,
+            notes: 'Engine overhaul completed'
         },
         {
             vehicleId: seededVehicles['GJ01AB1120'],
             serviceType: 'Tyres',
+            priority: 'Critical',
+            mechanic: 'Sunil Patel',
             cost: 6200,
             date: getRelativeDate(-10),
-            status: 'In Shop',
-            odometer: 65900
+            status: 'In Progress',
+            odometer: 65900,
+            notes: 'All 4 tyres replaced'
+        },
+        {
+            vehicleId: seededVehicles['GJ01TRK04'],
+            serviceType: 'Brake',
+            priority: 'High',
+            mechanic: '',
+            cost: 4500,
+            date: getRelativeDate(5), // Upcoming
+            status: 'Open',
+            odometer: 105200,
+            notes: 'Scheduled brake pad replacement'
         }
     ];
 
     for (const m of maintenanceLogs) {
         const log = await prisma.maintenanceLog.create({ data: m });
-        // Create transactional outflow
-        await prisma.transaction.create({
-            data: {
-                type: 'OUTFLOW',
-                category: 'Maintenance',
-                amount: log.cost,
-                referenceId: log.id,
-                date: log.date
-            }
-        });
+        // Create transactional outflow for completed maintenance
+        if (m.status === 'Closed' || m.status === 'Completed') {
+            await prisma.transaction.create({
+                data: {
+                    type: 'OUTFLOW',
+                    category: 'Maintenance',
+                    amount: log.cost,
+                    referenceId: log.id,
+                    date: log.date
+                }
+            });
+        }
     }
     console.log('Seeded maintenance logs and transactions.');
 
@@ -334,23 +398,38 @@ async function main() {
             vehicleId: seededVehicles['GJ01AW5121'],
             date: getRelativeDate(-7),
             liters: 42.0,
-            cost: 3950,
-            odometer: 73800
+            pricePerLiter: 94.10,
+            cost: 3952,
+            odometer: 73800,
+            fuelStation: 'HP Petrol Pump, Gandhinagar'
         },
         {
             vehicleId: seededVehicles['GJ01BA9981'],
             date: getRelativeDate(-6),
             liters: 90.0,
-            cost: 8400,
+            pricePerLiter: 93.50,
+            cost: 8415,
             odometer: 191900,
-            isAnomaly: true
+            isAnomaly: true,
+            fuelStation: 'IOCL Pump, Sanand'
         },
         {
             vehicleId: seededVehicles['GJ01AB1120'],
             date: getRelativeDate(-6),
             liters: 28.0,
-            cost: 2650,
-            odometer: 65850
+            pricePerLiter: 94.50,
+            cost: 2646,
+            odometer: 65850,
+            fuelStation: 'BPCL Pump, Ahmedabad'
+        },
+        {
+            vehicleId: seededVehicles['GJ01TRK04'],
+            date: getRelativeDate(-3),
+            liters: 55.0,
+            pricePerLiter: 93.80,
+            cost: 5159,
+            odometer: 105100,
+            fuelStation: 'Shell Pump, Vatva'
         }
     ];
 
@@ -369,28 +448,53 @@ async function main() {
     }
     console.log('Seeded fuel logs and transactions.');
 
-    // 8. Seed Expenses (Tolls, etc.)
+    // 8. Seed Expenses (Tolls, Parking, etc.)
     const expenses = [
         {
             tripId: 'TR-001',
             vehicleId: seededVehicles['GJ01AW5121'],
+            category: 'Toll',
             toll: 120,
             other: 0,
+            amount: 120,
+            description: 'NH-48 Toll',
             date: getRelativeDate(-7)
         },
         {
             tripId: 'TR-002',
             vehicleId: seededVehicles['GJ01BA9981'],
+            category: 'Toll',
             toll: 340,
-            other: 150,
+            other: 0,
+            amount: 340,
+            description: 'Express highway toll',
             date: getRelativeDate(-6)
+        },
+        {
+            tripId: 'TR-002',
+            vehicleId: seededVehicles['GJ01BA9981'],
+            category: 'Parking',
+            toll: 0,
+            other: 150,
+            amount: 150,
+            description: 'Overnight parking at Baroda Hub',
+            date: getRelativeDate(-6)
+        },
+        {
+            vehicleId: seededVehicles['GJ01TRK04'],
+            category: 'Insurance',
+            toll: 0,
+            other: 12000,
+            amount: 12000,
+            description: 'Annual insurance renewal',
+            date: getRelativeDate(-15)
         }
     ];
 
     for (const e of expenses) {
         const log = await prisma.expense.create({ data: e });
-        
-        // Seed Toll transaction outflow
+
+        // Seed toll transaction outflow
         if (log.toll > 0) {
             await prisma.transaction.create({
                 data: {
@@ -402,13 +506,13 @@ async function main() {
                 }
             });
         }
-        
-        // Seed Other transaction outflow
+
+        // Seed other/categorized transaction outflow
         if (log.other > 0) {
             await prisma.transaction.create({
                 data: {
                     type: 'OUTFLOW',
-                    category: 'Other Expense',
+                    category: log.category || 'Other Expense',
                     amount: log.other,
                     referenceId: log.id,
                     date: log.date
@@ -420,10 +524,13 @@ async function main() {
 
     // 9. Seed Alerts & Notifications
     const alerts = [
-        { type: 'Error', message: '🔴 TRK-04 overdue maintenance' },
+        { type: 'Error', message: '🔴 TRK-04 overdue maintenance by 200 km' },
         { type: 'Warning', message: '🟠 Alex license expires tomorrow' },
+        { type: 'Error', message: '🔴 Jean license has expired!' },
         { type: 'Info', message: '🟢 Fleet utilization increased 9%' },
-        { type: 'Error', message: '🔴 TRUCK-11 fuel anomaly detected' }
+        { type: 'Error', message: '🔴 TRUCK-11 fuel anomaly detected! Efficiency dropped by 22%' },
+        { type: 'Warning', message: '🟠 VAN-09 insurance expired 30 days ago' },
+        { type: 'Info', message: '🟢 Trip TR-002 completed. Vehicle & Driver returned to pool.' }
     ];
 
     for (const alert of alerts) {
@@ -431,7 +538,14 @@ async function main() {
     }
     console.log('Seeded notifications.');
 
-    console.log('Database seeding completed successfully!');
+    console.log('✅ Database seeding completed successfully!');
+    console.log('\n📋 Test credentials (all use password: Password123):');
+    console.log('  Fleet Manager:     manager@transitops.in');
+    console.log('  Dispatcher:        dispatcher@transitops.in');
+    console.log('  Safety Officer:    safety@transitops.in');
+    console.log('  Financial Analyst: finance@transitops.in');
+    console.log('  Admin:             admin@transitops.in');
+    console.log('  Driver:            driver_alex@transitops.in');
 }
 
 main()
