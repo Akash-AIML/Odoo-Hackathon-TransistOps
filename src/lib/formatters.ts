@@ -1,5 +1,5 @@
 export function formatCurrency(amount: number, currency = 'INR'): string {
-    const value = amount / 100;
+    const value = amount;
     return new Intl.NumberFormat('en-IN', {
         style: 'currency',
         currency,

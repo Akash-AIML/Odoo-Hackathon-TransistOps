@@ -57,7 +57,7 @@ export const GET = withAuth(
             return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
         }
     },
-    ['Dispatcher', 'Safety Officer'],
+    ['Safety Officer', 'Fleet Manager'],
 );
 
 // 2. POST /api/drivers - Create new driver profile (Safety Officer only)
@@ -114,5 +114,5 @@ export const POST = withAuth(
             return NextResponse.json({ error: (error as Error).message || 'Internal Server Error' }, { status: 500 });
         }
     },
-    ['Safety Officer'],
+    ['Safety Officer', 'Fleet Manager'],
 );

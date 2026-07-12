@@ -42,23 +42,16 @@ export default async function AnalyticsPage() {
 
     const { fleetMetrics, vehicleReports } = data;
 
-    const totalFuel = vehicleReports.reduce((s, v) => s + v.financials.fuel, 0);
-    const totalMaintenance = vehicleReports.reduce((s, v) => s + v.financials.maintenance, 0);
-    const totalTolls = vehicleReports.reduce((s, v) => s + v.financials.tolls, 0);
-    const totalOther = vehicleReports.reduce((s, v) => s + v.financials.other, 0);
-
-    const costBreakdown = [
-        { name: 'Fuel', value: totalFuel, color: '#ff8c00' },
-        { name: 'Maintenance', value: totalMaintenance, color: '#3b82f6' },
-        { name: 'Tolls', value: totalTolls, color: '#10b981' },
-        { name: 'Other', value: totalOther, color: '#a855f7' },
-    ];
+    // Calculate average vehicle ROI
+    const avgRoi =
+        vehicleReports.length > 0
+            ? vehicleReports.reduce((s, v) => s + v.financials.roi, 0) / vehicleReports.length
+            : 0;
 
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
     const monthlyData = months.map((month, i) => ({
         month,
         revenue: Math.round((fleetMetrics.totalRevenue / 6) * (0.85 + i * 0.05)),
-        cost: Math.round((fleetMetrics.totalOperationalCost / 6) * (0.9 + i * 0.03)),
     }));
 
     return (
@@ -70,13 +63,13 @@ export default async function AnalyticsPage() {
             />
 
             <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <StatCard label="Fuel Efficiency" value={`${fleetMetrics.avgFuelEfficiency.toFixed(1)} km/L`} />
                 <StatCard label="Fleet Utilization" value={formatPercent(fleetMetrics.fleetUtilization)} />
-                <StatCard label="Total Revenue" value={formatCurrency(fleetMetrics.totalRevenue, currency)} />
-                <StatCard label="Net Profitability" value={formatCurrency(fleetMetrics.netProfitability, currency)} />
-                <StatCard label="Avg Fuel Efficiency" value={`${fleetMetrics.avgFuelEfficiency} km/L`} />
+                <StatCard label="Operational Cost" value={formatCurrency(fleetMetrics.totalOperationalCost, currency)} />
+                <StatCard label="Vehicle ROI" value={formatPercent(avgRoi)} />
             </div>
 
-            <AnalyticsCharts monthlyData={monthlyData} costBreakdown={costBreakdown} />
+            <AnalyticsCharts monthlyData={monthlyData} vehicleReports={vehicleReports} currency={currency} />
 
             <div className="mt-6 overflow-hidden rounded-xl border border-card-border bg-card">
                 <div className="border-b border-card-border px-4 py-3">

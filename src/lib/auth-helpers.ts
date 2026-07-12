@@ -9,7 +9,7 @@ export function canAccessFleet(role: string): boolean {
 }
 
 export function canAccessDrivers(role: string): boolean {
-    return role === 'Admin' || ['Dispatcher', 'Safety Officer'].includes(role);
+    return role === 'Admin' || ['Fleet Manager', 'Safety Officer'].includes(role);
 }
 
 export function canAccessMaintenance(role: string): boolean {
@@ -29,5 +29,5 @@ export function canCreateVehicle(role: string): boolean {
 }
 
 export function canDispatchTrips(role: string): boolean {
-    return role === 'Admin' || role === 'Dispatcher';
+    return role === 'Admin' || role === 'Dispatcher' || role === 'Fleet Manager';
 }

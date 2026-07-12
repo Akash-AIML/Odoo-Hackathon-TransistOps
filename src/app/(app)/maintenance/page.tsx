@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation';
-import { MaintenanceTable } from '@/components/maintenance/MaintenanceTable';
+import { MaintenanceManager } from '@/components/maintenance/MaintenanceManager';
 import { AlertBox } from '@/components/ui/AlertBox';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { apiFetch, getSessionUser } from '@/lib/api/server';
-import type { MaintenanceLog, PaginatedResponse, Settings } from '@/lib/api/types';
+import type { MaintenanceLog, PaginatedResponse, Settings, Vehicle } from '@/lib/api/types';
 import { canAccessMaintenance } from '@/lib/auth-helpers';
 import { getDefaultRoute } from '@/lib/constants';
 
@@ -14,18 +14,21 @@ export default async function MaintenancePage() {
     }
 
     let logs: MaintenanceLog[] = [];
+    let vehicles: Vehicle[] = [];
     let currency = 'INR';
     let error = '';
 
     try {
-        const [logsRes, settingsRes] = await Promise.all([
+        const [logsRes, settingsRes, vehiclesRes] = await Promise.all([
             apiFetch<PaginatedResponse<MaintenanceLog>>('/api/maintenance?limit=50'),
             apiFetch<Settings>('/api/settings').catch(() => null),
+            apiFetch<PaginatedResponse<Vehicle>>('/api/vehicles?limit=100').catch(() => ({ data: [] })),
         ]);
         logs = logsRes.data;
+        vehicles = vehiclesRes.data;
         if (settingsRes) currency = settingsRes.currency;
     } catch (e) {
-        error = e instanceof Error ? e.message : 'Failed to load maintenance logs.';
+        error = e instanceof Error ? e.message : 'Failed to load maintenance records.';
     }
 
     const inShop = logs.filter((l) => l.status === 'In Shop');
@@ -53,7 +56,7 @@ export default async function MaintenancePage() {
                             </div>
                         </div>
                     )}
-                    <MaintenanceTable logs={logs} currency={currency} />
+                    <MaintenanceManager logs={logs} vehicles={vehicles} currency={currency} userRole={user.role} />
                 </>
             )}
         </div>

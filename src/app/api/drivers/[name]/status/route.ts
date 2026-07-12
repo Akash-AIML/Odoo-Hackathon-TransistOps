@@ -39,5 +39,5 @@ export const PATCH = withAuth(
             return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
         }
     },
-    ['Safety Officer'],
+    ['Safety Officer', 'Fleet Manager'],
 );

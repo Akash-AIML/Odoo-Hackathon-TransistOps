@@ -52,7 +52,7 @@ export const GET = withAuth(
             return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
         }
     },
-    ['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst', 'Driver'],
+    ['Fleet Manager', 'Dispatcher', 'Driver'],
 );
 
 // 2. POST /api/trips - Create/Dispatch a Trip (Dispatcher only)
@@ -164,5 +164,5 @@ export const POST = withAuth(
             return NextResponse.json({ error: (error as Error).message || 'Internal Server Error' }, { status: 500 });
         }
     },
-    ['Dispatcher'],
+    ['Dispatcher', 'Fleet Manager'],
 );

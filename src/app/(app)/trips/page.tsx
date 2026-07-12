@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
+import { TripDispatcherPanel } from '@/components/trips/TripDispatcherPanel';
 import { TripsTable } from '@/components/trips/TripsTable';
-import { TripWizard } from '@/components/trips/TripWizard';
 import { AlertBox } from '@/components/ui/AlertBox';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { apiFetch, getSessionUser } from '@/lib/api/server';
@@ -50,7 +50,7 @@ export default async function TripsPage() {
 
             {canDispatchTrips(user.role) && !error && (
                 <div className="mb-8">
-                    <TripWizard vehicles={vehicles} drivers={drivers} />
+                    <TripDispatcherPanel vehicles={vehicles} drivers={drivers} trips={trips} />
                 </div>
             )}
 

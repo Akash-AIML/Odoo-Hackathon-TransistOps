@@ -25,12 +25,12 @@ export const NAV_ITEMS = [
         icon: 'Truck',
         roles: ['Fleet Manager', 'Dispatcher', 'Financial Analyst', 'Admin'],
     },
-    { href: '/drivers', label: 'Drivers', icon: 'Users', roles: ['Dispatcher', 'Safety Officer', 'Admin'] },
+    { href: '/drivers', label: 'Drivers', icon: 'Users', roles: ['Fleet Manager', 'Safety Officer', 'Admin'] },
     {
         href: '/trips',
         label: 'Trips',
         icon: 'Route',
-        roles: ['Dispatcher', 'Driver', 'Fleet Manager', 'Safety Officer', 'Financial Analyst', 'Admin'],
+        roles: ['Dispatcher', 'Driver', 'Fleet Manager', 'Admin'],
     },
     {
         href: '/maintenance',

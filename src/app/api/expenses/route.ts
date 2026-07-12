@@ -111,5 +111,5 @@ export const POST = withAuth(
             return NextResponse.json({ error: (error as Error).message || 'Internal Server Error' }, { status: 500 });
         }
     },
-    ['Financial Analyst'],
+    ['Financial Analyst', 'Fleet Manager'],
 );
