@@ -5,7 +5,7 @@ import crypto from 'node:crypto';
 // Standard 32-byte key for AES-256-GCM. Fallback to default for development if environment key is missing.
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY
     ? crypto.createHash('sha256').update(process.env.ENCRYPTION_KEY).digest()
-    : Buffer.from('transitops-encryption-key-32char', 'utf8');
+    : Buffer.from('sample-encryption-key-32char', 'utf8');
 
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12; // GCM standard IV length is 12 bytes
