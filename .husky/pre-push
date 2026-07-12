@@ -1,0 +1,13 @@
+#!/bin/sh
+# Husky pre-push hook to run Biome checks
+
+echo "🔍 [Husky Hook] Running Biome checks on the codebase..."
+npx biome check src
+
+if [ $? -ne 0 ]; then
+  echo "❌ [Husky Hook] Biome checks failed. Run 'npm run check' or 'npm run format' to fix style issues before pushing."
+  exit 1
+fi
+
+echo "✅ [Husky Hook] Biome checks passed."
+exit 0

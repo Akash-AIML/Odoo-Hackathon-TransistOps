@@ -1,0 +1,21 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "JWT_ACCESS_SECRET",
+    "JWT_REFRESH_SECRET",
+    "ENCRYPTION_KEY"
+  ],
+  "pipeline": {
+    "build": {
+      "outputs": [".next/**", "!.next/cache/**"]
+    },
+    "lint": {},
+    "check": {},
+    "format": {},
+    "test": {},
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}
