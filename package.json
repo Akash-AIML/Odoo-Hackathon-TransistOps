@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 5050",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start -p 5050",
     "lint": "biome lint src",
     "format": "biome format src --write",
