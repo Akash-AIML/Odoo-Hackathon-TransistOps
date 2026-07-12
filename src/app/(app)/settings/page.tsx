@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { SettingsForm } from '@/components/settings/SettingsForm';
-import { PageHeader } from '@/components/ui/PageHeader';
 import { AlertBox } from '@/components/ui/AlertBox';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { apiFetch, getSessionUser } from '@/lib/api/server';
 import type { Settings } from '@/lib/api/types';
 

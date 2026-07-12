@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
-import { AuthLayout } from '@/components/layout/AuthLayout';
 import { LoginForm } from '@/components/auth/LoginForm';
+import { AuthLayout } from '@/components/layout/AuthLayout';
 import { Skeleton } from '@/components/ui/Skeleton';
 
 export default function LoginPage() {

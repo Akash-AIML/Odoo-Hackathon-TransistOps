@@ -2,8 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { AlertBox } from '@/components/ui/AlertBox';
+import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import type { Driver, Vehicle } from '@/lib/api/types';
 
 interface TripWizardProps {
@@ -31,9 +31,7 @@ export function TripWizard({ vehicles, drivers }: TripWizardProps) {
     const selectedVehicle = vehicles.find((v) => v.id === form.vehicleId);
     const selectedDriver = drivers.find((d) => d.id === form.driverId);
     const overCapacity =
-        selectedVehicle && form.cargoWeight
-            ? Number(form.cargoWeight) > selectedVehicle.capacity
-            : false;
+        selectedVehicle && form.cargoWeight ? Number(form.cargoWeight) > selectedVehicle.capacity : false;
 
     async function handleFinish() {
         setError('');

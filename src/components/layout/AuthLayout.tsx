@@ -25,9 +25,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
                     </li>
                 </ul>
             </div>
-            <div className="flex w-full flex-col justify-center bg-background px-8 lg:w-1/2 lg:px-16">
-                {children}
-            </div>
+            <div className="flex w-full flex-col justify-center bg-background px-8 lg:w-1/2 lg:px-16">{children}</div>
         </div>
     );
 }

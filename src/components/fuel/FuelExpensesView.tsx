@@ -1,5 +1,4 @@
-import { StatusBadge } from '@/components/ui/StatusBadge';
-import type { FuelLog, Expense } from '@/lib/api/types';
+import type { Expense, FuelLog } from '@/lib/api/types';
 import { formatCurrency, formatDate } from '@/lib/formatters';
 
 interface FuelExpensesViewProps {
@@ -32,9 +31,7 @@ export function FuelExpensesView({ fuelLogs, expenses, currency = 'INR' }: FuelE
                                 <td className="px-4 py-2">{log.liters} L</td>
                                 <td className="px-4 py-2">
                                     {formatCurrency(log.cost, currency)}
-                                    {log.isAnomaly && (
-                                        <span className="ml-2 text-xs text-red-400">Anomaly</span>
-                                    )}
+                                    {log.isAnomaly && <span className="ml-2 text-xs text-red-400">Anomaly</span>}
                                 </td>
                             </tr>
                         ))}

@@ -1,11 +1,11 @@
 import { redirect } from 'next/navigation';
-import { TripWizard } from '@/components/trips/TripWizard';
 import { TripsTable } from '@/components/trips/TripsTable';
-import { PageHeader } from '@/components/ui/PageHeader';
+import { TripWizard } from '@/components/trips/TripWizard';
 import { AlertBox } from '@/components/ui/AlertBox';
-import { canDispatchTrips } from '@/lib/auth-helpers';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { apiFetch, getSessionUser } from '@/lib/api/server';
 import type { Driver, PaginatedResponse, Settings, Trip, Vehicle } from '@/lib/api/types';
+import { canDispatchTrips } from '@/lib/auth-helpers';
 
 export default async function TripsPage() {
     const user = await getSessionUser();
@@ -42,9 +42,7 @@ export default async function TripsPage() {
             <PageHeader
                 title="Trip Dispatcher"
                 description={
-                    canDispatchTrips(user.role)
-                        ? 'Create and dispatch logistics trips'
-                        : 'View assigned trip activity'
+                    canDispatchTrips(user.role) ? 'Create and dispatch logistics trips' : 'View assigned trip activity'
                 }
             />
 

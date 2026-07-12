@@ -2,8 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { AlertBox } from '@/components/ui/AlertBox';
+import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import type { Settings, User } from '@/lib/api/types';
 
 interface SettingsFormProps {
@@ -64,16 +64,23 @@ export function SettingsForm({ settings, user }: SettingsFormProps) {
                 <h3 className="font-semibold">Profile & Depot Settings</h3>
                 <div className="mt-4 space-y-4">
                     <div>
-                        <label className="mb-1 block text-sm text-muted">Name</label>
-                        <input className="input-field" value={user.name} disabled />
+                        <label htmlFor="user-name" className="mb-1 block text-sm text-muted">
+                            Name
+                        </label>
+                        <input id="user-name" className="input-field" value={user.name} disabled />
                     </div>
                     <div>
-                        <label className="mb-1 block text-sm text-muted">Email</label>
-                        <input className="input-field" value={user.email} disabled />
+                        <label htmlFor="user-email" className="mb-1 block text-sm text-muted">
+                            Email
+                        </label>
+                        <input id="user-email" className="input-field" value={user.email} disabled />
                     </div>
                     <div>
-                        <label className="mb-1 block text-sm text-muted">Depot Name</label>
+                        <label htmlFor="depot-name" className="mb-1 block text-sm text-muted">
+                            Depot Name
+                        </label>
                         <input
+                            id="depot-name"
                             className="input-field"
                             value={form.depotName}
                             disabled={!canEdit}
@@ -82,20 +89,24 @@ export function SettingsForm({ settings, user }: SettingsFormProps) {
                     </div>
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div>
-                            <label className="mb-1 block text-sm text-muted">Speed Limit</label>
+                            <label htmlFor="speed-limit" className="mb-1 block text-sm text-muted">
+                                Speed Limit
+                            </label>
                             <input
+                                id="speed-limit"
                                 className="input-field"
                                 type="number"
                                 value={form.safeSpeedLimit}
                                 disabled={!canEdit}
-                                onChange={(e) =>
-                                    setForm({ ...form, safeSpeedLimit: Number(e.target.value) })
-                                }
+                                onChange={(e) => setForm({ ...form, safeSpeedLimit: Number(e.target.value) })}
                             />
                         </div>
                         <div>
-                            <label className="mb-1 block text-sm text-muted">Currency</label>
+                            <label htmlFor="currency" className="mb-1 block text-sm text-muted">
+                                Currency
+                            </label>
                             <input
+                                id="currency"
                                 className="input-field"
                                 value={form.currency}
                                 disabled={!canEdit}

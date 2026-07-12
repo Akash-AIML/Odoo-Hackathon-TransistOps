@@ -1,12 +1,12 @@
 import Link from 'next/link';
-import { redirect, notFound } from 'next/navigation';
-import { StatusBadge } from '@/components/ui/StatusBadge';
-import { PageHeader } from '@/components/ui/PageHeader';
+import { notFound, redirect } from 'next/navigation';
 import { AlertBox } from '@/components/ui/AlertBox';
-import { canAccessFleet } from '@/lib/auth-helpers';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 import { apiFetch, getSessionUser } from '@/lib/api/server';
-import { getDefaultRoute } from '@/lib/constants';
 import type { Vehicle } from '@/lib/api/types';
+import { canAccessFleet } from '@/lib/auth-helpers';
+import { getDefaultRoute } from '@/lib/constants';
 import { formatCurrency, formatDate, formatNumber } from '@/lib/formatters';
 
 interface FleetDetailPageProps {
@@ -20,11 +20,13 @@ export default async function FleetDetailPage({ params }: FleetDetailPageProps) 
         redirect(getDefaultRoute(user?.role ?? ''));
     }
 
-    let vehicle: (Vehicle & {
-        trips?: Array<{ id: string; source: string; destination: string; status: string; createdAt: string }>;
-        maintenanceLogs?: Array<{ id: string; serviceType: string; date: string; cost: number; status: string }>;
-        fuelLogs?: Array<{ id: string; date: string; liters: number; cost: number; isAnomaly: boolean }>;
-    }) | null = null;
+    let vehicle:
+        | (Vehicle & {
+              trips?: Array<{ id: string; source: string; destination: string; status: string; createdAt: string }>;
+              maintenanceLogs?: Array<{ id: string; serviceType: string; date: string; cost: number; status: string }>;
+              fuelLogs?: Array<{ id: string; date: string; liters: number; cost: number; isAnomaly: boolean }>;
+          })
+        | null = null;
     let error = '';
 
     try {
@@ -87,16 +89,17 @@ export default async function FleetDetailPage({ params }: FleetDetailPageProps) 
                     <h3 className="font-semibold">Recent Trips</h3>
                     <ul className="mt-3 space-y-2 text-sm">
                         {(vehicle.trips ?? []).slice(0, 5).map((trip) => (
-                            <li key={trip.id} className="flex items-center justify-between border-b border-card-border pb-2">
+                            <li
+                                key={trip.id}
+                                className="flex items-center justify-between border-b border-card-border pb-2"
+                            >
                                 <span>
                                     {trip.source} → {trip.destination}
                                 </span>
                                 <StatusBadge status={trip.status} />
                             </li>
                         ))}
-                        {(vehicle.trips ?? []).length === 0 && (
-                            <li className="text-muted">No trips recorded.</li>
-                        )}
+                        {(vehicle.trips ?? []).length === 0 && <li className="text-muted">No trips recorded.</li>}
                     </ul>
                 </div>
 
@@ -104,7 +107,10 @@ export default async function FleetDetailPage({ params }: FleetDetailPageProps) 
                     <h3 className="font-semibold">Maintenance History</h3>
                     <ul className="mt-3 space-y-2 text-sm">
                         {(vehicle.maintenanceLogs ?? []).slice(0, 5).map((log) => (
-                            <li key={log.id} className="flex items-center justify-between border-b border-card-border pb-2">
+                            <li
+                                key={log.id}
+                                className="flex items-center justify-between border-b border-card-border pb-2"
+                            >
                                 <span>
                                     {log.serviceType} — {formatDate(log.date)}
                                 </span>

@@ -1,6 +1,6 @@
+import type { User } from '@/lib/api/types';
 import { Sidebar } from './Sidebar';
 import { TopHeader } from './TopHeader';
-import type { User } from '@/lib/api/types';
 
 interface AppShellProps {
     user: User;

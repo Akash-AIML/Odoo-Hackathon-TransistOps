@@ -1,13 +1,13 @@
 import { redirect } from 'next/navigation';
 import { FleetDistribution } from '@/components/charts/FleetDistribution';
-import { StatusBadge } from '@/components/ui/StatusBadge';
-import { StatCard } from '@/components/ui/StatCard';
-import { PageHeader } from '@/components/ui/PageHeader';
 import { AlertBox } from '@/components/ui/AlertBox';
-import { canAccessDashboard } from '@/lib/auth-helpers';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { StatCard } from '@/components/ui/StatCard';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 import { apiFetch, getSessionUser } from '@/lib/api/server';
-import { getDefaultRoute } from '@/lib/constants';
 import type { DashboardData } from '@/lib/api/types';
+import { canAccessDashboard } from '@/lib/auth-helpers';
+import { getDefaultRoute } from '@/lib/constants';
 import { formatPercent } from '@/lib/formatters';
 
 export default async function DashboardPage() {

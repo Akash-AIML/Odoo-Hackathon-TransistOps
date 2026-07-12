@@ -1,16 +1,6 @@
 'use client';
 
-import {
-    Bar,
-    BarChart,
-    CartesianGrid,
-    Line,
-    LineChart,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis,
-} from 'recharts';
+import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface AnalyticsChartsProps {
     monthlyData: Array<{ month: string; revenue: number; cost: number }>;

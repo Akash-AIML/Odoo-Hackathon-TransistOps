@@ -13,13 +13,43 @@ export const ROLES = [
 export type Role = (typeof ROLES)[number];
 
 export const NAV_ITEMS = [
-    { href: '/dashboard', label: 'Dashboard', icon: 'LayoutDashboard', roles: ['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst', 'Admin'] },
-    { href: '/fleet', label: 'Fleet', icon: 'Truck', roles: ['Fleet Manager', 'Dispatcher', 'Financial Analyst', 'Admin'] },
+    {
+        href: '/dashboard',
+        label: 'Dashboard',
+        icon: 'LayoutDashboard',
+        roles: ['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst', 'Admin'],
+    },
+    {
+        href: '/fleet',
+        label: 'Fleet',
+        icon: 'Truck',
+        roles: ['Fleet Manager', 'Dispatcher', 'Financial Analyst', 'Admin'],
+    },
     { href: '/drivers', label: 'Drivers', icon: 'Users', roles: ['Dispatcher', 'Safety Officer', 'Admin'] },
-    { href: '/trips', label: 'Trips', icon: 'Route', roles: ['Dispatcher', 'Driver', 'Fleet Manager', 'Safety Officer', 'Financial Analyst', 'Admin'] },
-    { href: '/maintenance', label: 'Maintenance', icon: 'Wrench', roles: ['Fleet Manager', 'Maintenance Technician', 'Admin'] },
-    { href: '/fuel-expenses', label: 'Fuel & Expenses', icon: 'Fuel', roles: ['Fleet Manager', 'Financial Analyst', 'Admin'] },
-    { href: '/analytics', label: 'Analytics', icon: 'BarChart3', roles: ['Fleet Manager', 'Financial Analyst', 'Admin'] },
+    {
+        href: '/trips',
+        label: 'Trips',
+        icon: 'Route',
+        roles: ['Dispatcher', 'Driver', 'Fleet Manager', 'Safety Officer', 'Financial Analyst', 'Admin'],
+    },
+    {
+        href: '/maintenance',
+        label: 'Maintenance',
+        icon: 'Wrench',
+        roles: ['Fleet Manager', 'Maintenance Technician', 'Admin'],
+    },
+    {
+        href: '/fuel-expenses',
+        label: 'Fuel & Expenses',
+        icon: 'Fuel',
+        roles: ['Fleet Manager', 'Financial Analyst', 'Admin'],
+    },
+    {
+        href: '/analytics',
+        label: 'Analytics',
+        icon: 'BarChart3',
+        roles: ['Fleet Manager', 'Financial Analyst', 'Admin'],
+    },
     { href: '/settings', label: 'Settings', icon: 'Settings', roles: ROLES as unknown as string[] },
 ] as const;
 
