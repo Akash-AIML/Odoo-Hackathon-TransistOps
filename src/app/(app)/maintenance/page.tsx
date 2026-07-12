@@ -1,11 +1,11 @@
 import { redirect } from 'next/navigation';
 import { MaintenanceTable } from '@/components/maintenance/MaintenanceTable';
-import { PageHeader } from '@/components/ui/PageHeader';
 import { AlertBox } from '@/components/ui/AlertBox';
-import { canAccessMaintenance } from '@/lib/auth-helpers';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { apiFetch, getSessionUser } from '@/lib/api/server';
-import { getDefaultRoute } from '@/lib/constants';
 import type { MaintenanceLog, PaginatedResponse, Settings } from '@/lib/api/types';
+import { canAccessMaintenance } from '@/lib/auth-helpers';
+import { getDefaultRoute } from '@/lib/constants';
 
 export default async function MaintenancePage() {
     const user = await getSessionUser();
@@ -32,10 +32,7 @@ export default async function MaintenancePage() {
 
     return (
         <div>
-            <PageHeader
-                title="Maintenance"
-                description="Vehicle service history and active repair queue"
-            />
+            <PageHeader title="Maintenance" description="Vehicle service history and active repair queue" />
 
             {error ? (
                 <AlertBox>{error}</AlertBox>
@@ -49,7 +46,9 @@ export default async function MaintenancePage() {
                             <div className="mt-3 h-2 overflow-hidden rounded-full bg-card-border">
                                 <div
                                     className="h-full rounded-full bg-orange-500 transition-all"
-                                    style={{ width: `${Math.min(100, (inShop.length / Math.max(logs.length, 1)) * 100)}%` }}
+                                    style={{
+                                        width: `${Math.min(100, (inShop.length / Math.max(logs.length, 1)) * 100)}%`,
+                                    }}
                                 />
                             </div>
                         </div>

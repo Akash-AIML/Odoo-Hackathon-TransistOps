@@ -5,13 +5,7 @@ interface PrimaryButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
     size?: 'sm' | 'md' | 'lg';
 }
 
-export function PrimaryButton({
-    children,
-    className,
-    variant = 'primary',
-    size = 'md',
-    ...props
-}: PrimaryButtonProps) {
+export function PrimaryButton({ children, className, variant = 'primary', size = 'md', ...props }: PrimaryButtonProps) {
     const variants = {
         primary: 'bg-primary text-black hover:bg-primary-hover',
         secondary: 'bg-blue-600 text-white hover:bg-blue-500',

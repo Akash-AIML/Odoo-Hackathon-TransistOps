@@ -1,11 +1,11 @@
 import { redirect } from 'next/navigation';
 import { FuelExpensesView } from '@/components/fuel/FuelExpensesView';
-import { PageHeader } from '@/components/ui/PageHeader';
 import { AlertBox } from '@/components/ui/AlertBox';
-import { canAccessFuelExpenses } from '@/lib/auth-helpers';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { apiFetch, getSessionUser } from '@/lib/api/server';
-import { getDefaultRoute } from '@/lib/constants';
 import type { Expense, FuelLog, PaginatedResponse, Settings } from '@/lib/api/types';
+import { canAccessFuelExpenses } from '@/lib/auth-helpers';
+import { getDefaultRoute } from '@/lib/constants';
 
 export default async function FuelExpensesPage() {
     const user = await getSessionUser();
@@ -38,7 +38,11 @@ export default async function FuelExpensesPage() {
                 description="Track fuel consumption, anomalies, tolls, and operational costs"
             />
 
-            {error ? <AlertBox>{error}</AlertBox> : <FuelExpensesView fuelLogs={fuelLogs} expenses={expenses} currency={currency} />}
+            {error ? (
+                <AlertBox>{error}</AlertBox>
+            ) : (
+                <FuelExpensesView fuelLogs={fuelLogs} expenses={expenses} currency={currency} />
+            )}
         </div>
     );
 }

@@ -10,6 +10,7 @@ export function PageSkeleton() {
             <Skeleton className="h-8 w-48" />
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {Array.from({ length: 4 }).map((_, i) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton layout
                     <Skeleton key={i} className="h-28" />
                 ))}
             </div>
@@ -23,6 +24,7 @@ export function TableSkeleton({ rows = 6 }: { rows?: number }) {
         <div className="space-y-3">
             <Skeleton className="h-10 w-full" />
             {Array.from({ length: rows }).map((_, i) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton layout
                 <Skeleton key={i} className="h-12 w-full" />
             ))}
         </div>

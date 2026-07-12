@@ -2,8 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { AlertBox } from '@/components/ui/AlertBox';
+import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { VEHICLE_TYPES } from '@/lib/constants';
 
 export function AddVehicleForm() {
@@ -81,9 +81,27 @@ export function AddVehicleForm() {
                                 </option>
                             ))}
                         </select>
-                        <input name="capacity" type="number" required placeholder="Capacity (kg)" className="input-field" />
-                        <input name="odometer" type="number" required placeholder="Odometer (km)" className="input-field" />
-                        <input name="cost" type="number" required placeholder="Acquisition Cost (paise)" className="input-field" />
+                        <input
+                            name="capacity"
+                            type="number"
+                            required
+                            placeholder="Capacity (kg)"
+                            className="input-field"
+                        />
+                        <input
+                            name="odometer"
+                            type="number"
+                            required
+                            placeholder="Odometer (km)"
+                            className="input-field"
+                        />
+                        <input
+                            name="cost"
+                            type="number"
+                            required
+                            placeholder="Acquisition Cost (paise)"
+                            className="input-field"
+                        />
                     </div>
                     <div className="flex justify-end gap-3">
                         <PrimaryButton variant="ghost" onClick={() => setOpen(false)}>

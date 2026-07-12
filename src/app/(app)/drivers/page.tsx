@@ -1,11 +1,11 @@
 import { redirect } from 'next/navigation';
 import { DriversTable } from '@/components/drivers/DriversTable';
-import { PageHeader } from '@/components/ui/PageHeader';
 import { AlertBox } from '@/components/ui/AlertBox';
-import { canAccessDrivers } from '@/lib/auth-helpers';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { apiFetch, getSessionUser } from '@/lib/api/server';
-import { getDefaultRoute } from '@/lib/constants';
 import type { Driver, PaginatedResponse } from '@/lib/api/types';
+import { canAccessDrivers } from '@/lib/auth-helpers';
+import { getDefaultRoute } from '@/lib/constants';
 
 export default async function DriversPage() {
     const user = await getSessionUser();
@@ -25,10 +25,7 @@ export default async function DriversPage() {
 
     return (
         <div>
-            <PageHeader
-                title="Drivers & Safety"
-                description="Driver profiles, license compliance, and safety scores"
-            />
+            <PageHeader title="Drivers & Safety" description="Driver profiles, license compliance, and safety scores" />
 
             {error ? <AlertBox>{error}</AlertBox> : <DriversTable drivers={drivers} />}
         </div>

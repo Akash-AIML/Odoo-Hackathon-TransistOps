@@ -1,20 +1,10 @@
 'use client';
 
+import { BarChart3, Fuel, LayoutDashboard, LogOut, Route, Settings, Truck, Users, Wrench } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-    BarChart3,
-    Fuel,
-    LayoutDashboard,
-    LogOut,
-    Route,
-    Settings,
-    Truck,
-    Users,
-    Wrench,
-} from 'lucide-react';
-import { APP_NAME, NAV_ITEMS } from '@/lib/constants';
 import type { User } from '@/lib/api/types';
+import { APP_NAME, NAV_ITEMS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 const ICONS = {

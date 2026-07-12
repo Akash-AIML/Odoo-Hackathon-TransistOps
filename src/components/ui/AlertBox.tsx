@@ -13,7 +13,5 @@ export function AlertBox({ variant = 'error', children, className }: AlertBoxPro
         info: 'border-blue-500/40 bg-blue-500/10 text-blue-300',
     };
 
-    return (
-        <div className={cn('rounded-lg border px-4 py-3 text-sm', styles[variant], className)}>{children}</div>
-    );
+    return <div className={cn('rounded-lg border px-4 py-3 text-sm', styles[variant], className)}>{children}</div>;
 }

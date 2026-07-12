@@ -1,13 +1,13 @@
 import { redirect } from 'next/navigation';
-import { AnalyticsCharts } from '@/components/charts/AnalyticsCharts';
 import { ExportButtons } from '@/components/analytics/ExportButtons';
-import { StatCard } from '@/components/ui/StatCard';
-import { PageHeader } from '@/components/ui/PageHeader';
+import { AnalyticsCharts } from '@/components/charts/AnalyticsCharts';
 import { AlertBox } from '@/components/ui/AlertBox';
-import { canAccessAnalytics } from '@/lib/auth-helpers';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { StatCard } from '@/components/ui/StatCard';
 import { apiFetch, getSessionUser } from '@/lib/api/server';
-import { getDefaultRoute } from '@/lib/constants';
 import type { AnalyticsData, Settings } from '@/lib/api/types';
+import { canAccessAnalytics } from '@/lib/auth-helpers';
+import { getDefaultRoute } from '@/lib/constants';
 import { formatCurrency, formatPercent } from '@/lib/formatters';
 
 export default async function AnalyticsPage() {
@@ -72,14 +72,8 @@ export default async function AnalyticsPage() {
             <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard label="Fleet Utilization" value={formatPercent(fleetMetrics.fleetUtilization)} />
                 <StatCard label="Total Revenue" value={formatCurrency(fleetMetrics.totalRevenue, currency)} />
-                <StatCard
-                    label="Net Profitability"
-                    value={formatCurrency(fleetMetrics.netProfitability, currency)}
-                />
-                <StatCard
-                    label="Avg Fuel Efficiency"
-                    value={`${fleetMetrics.avgFuelEfficiency} km/L`}
-                />
+                <StatCard label="Net Profitability" value={formatCurrency(fleetMetrics.netProfitability, currency)} />
+                <StatCard label="Avg Fuel Efficiency" value={`${fleetMetrics.avgFuelEfficiency} km/L`} />
             </div>
 
             <AnalyticsCharts monthlyData={monthlyData} costBreakdown={costBreakdown} />

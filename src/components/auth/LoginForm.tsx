@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getDefaultRoute } from '@/lib/constants';
-import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { useState } from 'react';
 import { AlertBox } from '@/components/ui/AlertBox';
+import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { getDefaultRoute } from '@/lib/constants';
 
 export function LoginForm() {
     const router = useRouter();
@@ -111,9 +111,7 @@ export function LoginForm() {
                 </PrimaryButton>
             </form>
 
-            <p className="mt-6 text-center text-xs text-muted">
-                Demo: manager@transitops.in / Password123
-            </p>
+            <p className="mt-6 text-center text-xs text-muted">Demo: manager@transitops.in / Password123</p>
         </div>
     );
 }
