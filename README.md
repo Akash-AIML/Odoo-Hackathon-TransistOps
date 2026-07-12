@@ -1,12 +1,12 @@
 # TransitOps - Smart Transport Operations Platform
 
-🚀 **Live Deployment:** [odoo-hackathon-transist-ops.vercel.app](https://odoo-hackathon-transist-ops.vercel.app/login)
+**Live Deployment:** [odoo-hackathon-transist-ops.vercel.app](https://odoo-hackathon-transist-ops.vercel.app/login)
 
 TransitOps is a production-grade, full-stack transport Enterprise Resource Planning (ERP) platform designed as a centralized **Fleet & Logistics Control Center**. Built using **Next.js (App Router)**, **React 19**, **Recharts**, **TailwindCSS v4**, **Prisma**, and **PostgreSQL (Neon)**, it coordinates fleet status, driver compliance, Kanban-style trip dispatches, fuel anomaly detection, maintenance scheduling, and per-vehicle ROI ledger analytics.
 
 ---
 
-## 🌟 Key Application Modules
+## Key Application Modules
 
 TransitOps provides a comprehensive control panel for logistics coordinators and managers:
 
@@ -39,7 +39,7 @@ TransitOps provides a comprehensive control panel for logistics coordinators and
 
 ---
 
-## 📦 Project Structure & Workspaces
+## Project Structure & Workspaces
 
 The repository is structured as a **Turborepo monorepo** with the main Next.js full-stack application at the root:
 
@@ -70,7 +70,7 @@ The repository is structured as a **Turborepo monorepo** with the main Next.js f
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Prerequisite Setup
 Clone the repository and set up your local environment file:
@@ -118,7 +118,7 @@ npx dotenv-cli -e .env.local -- vitest run --test-timeout=20000
 
 ---
 
-## 🛠 Command Reference
+## Command Reference
 
 | Command | Action |
 | :--- | :--- |
@@ -132,7 +132,7 @@ npx dotenv-cli -e .env.local -- vitest run --test-timeout=20000
 
 ---
 
-## 🔒 Code Quality & Security Automations
+## Code Quality & Security Automations
 
 - **Biome & Husky hooks**: Biome (`v2.5.3`) enforces linting rules and code style on all files. An automated pre-push hook prevents pushing changes with style or syntax violations.
 - **Custom JWT Auth**: Utilizes secure credential auth. Custom access tokens are returned in responses, and refresh tokens are stored in secure, rotated `HttpOnly` cookies.
