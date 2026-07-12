@@ -36,10 +36,10 @@ npm install
 ```
 
 ### 2. Database Migration & Seeding
-Generate the client, execute SQLite migrations, and populate the database with seed data (hashes user passwords and encrypts driver PII details):
+Define your database connection string in `.env` (`DATABASE_URL="postgresql://..."`), sync the schema tables to the PostgreSQL database, and populate it with seed data (hashes user passwords and encrypts driver PII details):
 ```bash
 npx prisma generate
-npx prisma migrate dev
+npx prisma db push
 npx prisma db seed
 ```
 
